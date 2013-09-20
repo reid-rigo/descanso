@@ -1,4 +1,4 @@
 (function(window, $, undefined) {
 	'use strict'
 
-	var Descanso = {};
+	var D = {};

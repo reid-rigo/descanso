@@ -1,8 +1,19 @@
-!function(window, $) {
+!function(window, $, undefined) {
     "use strict";
-    var Descanso = {};
-    Descanso.Utils = {};
-    Descanso.get = function(path, query, options) {
+    var D = {};
+    D.Utils = {
+        extend: $.extend,
+        grep: $.grep,
+        each: $.each,
+        isFunction: $.isFunction,
+        toJSON: function(obj) {
+            var retVal = {};
+            for (var prop in obj) obj.hasOwnProperty(prop) && !$.isFunction(obj[prop]) && null !== obj[prop] && (retVal[prop] = $.isFunction(obj[prop].toJSON) ? obj[prop].toJSON() : "object" == typeof obj[prop] ? D.Utils.toJSON(obj[prop]) : obj[prop]);
+            return retVal;
+        }
+    };
+    D.ajax = $.ajax;
+    D.get = function(path, query, options) {
         2 === arguments.length && (options = query);
         $.isFunction(options) && (options = {
             success: options
@@ -13,9 +24,9 @@
             data: query,
             accepts: "application/json"
         }, options);
-        return $.ajax(options);
+        return D.ajax(options);
     };
-    Descanso.post = function(path, data, options) {
+    D.post = function(path, data, options) {
         $.isFunction(options) && (options = {
             success: options
         });
@@ -26,9 +37,9 @@
             contentType: "application/json",
             accepts: "application/json"
         }, options);
-        return $.ajax(options);
+        return D.ajax(options);
     };
-    Descanso.put = function(path, data, options) {
+    D.put = function(path, data, options) {
         $.isFunction(options) && (options = {
             success: options
         });
@@ -39,9 +50,9 @@
             contentType: "application/json",
             accepts: "application/json"
         }, options);
-        return $.ajax(options);
+        return D.ajax(options);
     };
-    Descanso.del = function(path, options) {
+    D.del = function(path, options) {
         $.isFunction(options) && (options = {
             success: options
         });
@@ -51,11 +62,11 @@
             data: query,
             accepts: "application/json"
         }, options);
-        return $.ajax(options);
+        return D.ajax(options);
     };
-    Descanso.CRUD = {
-        create: function(attrs, options) {
-            var m = new this(attrs);
+    D.CRUD = {
+        create: function(props, options) {
+            var m = new this(props);
             return m.save(options);
         },
         find: function(id) {
@@ -64,8 +75,8 @@
             });
             return m.fetch(options);
         },
-        update: function(attrs) {
-            var m = new this(attrs);
+        update: function(props) {
+            var m = new this(props);
             return m.save(options);
         },
         del: function(id) {
@@ -75,8 +86,8 @@
             return m.del(options);
         }
     };
-    Descanso.Mixins = {};
-    Descanso.Mixins.PubSub = {
+    D.Mixins = {};
+    D.Mixins.PubSub = {
         on: function(event, callback) {
             this._subscriptions[event] = this._subscriptions[event] || [];
             this._subscriptions[event].push(callback);
@@ -88,29 +99,32 @@
             });
         }
     };
-    Descanso.mixin = Descanso.extend = $.extend;
-    Descanso.Model = function() {
+    D.mixin = D.Utils.extend;
+    D.Collection = function() {
+        var collection = {}, collectionProto = Object.create(Array.prototype, {});
+        collection.extend = function(protoObj) {
+            var child = function(items) {
+                this.concat(items);
+            }, childProto = Object.create(collectionProto);
+            child.prototype = $.extend(childProto, protoObj);
+            child.prototype.constructor = child;
+            return child;
+        };
+        return collection;
+    }();
+    D.Model = function() {
         var model = {}, modelProto = {
-            get: function(attr) {
-                return this[attr];
+            get: function(prop) {
+                return this[prop];
             },
-            set: function(attr, value) {
-                this[attr] = value;
-                this.trigger("change", "change:" + attr);
-            },
-            getter: function(attr) {
-                Object.defineProperty(this, attr, {});
-            },
-            setter: function(attr) {
-                Object.defineProperty(this, attr, {});
+            set: function(prop, value) {
+                if ("string" == typeof prop) this[prop] = value; else if (null !== prop && "object" == typeof prop) for (var p in prop) this[p] = prop[p];
             },
             isNew: function() {
-                return null !== this.id;
+                return null === this.id || this.id === undefined;
             },
             toJSON: function() {
-                var attrs = {}, self = this;
-                for (var prop in self) self.hasOwnProperty(prop) && !$.isFunction(prop) && (attrs[prop] = self[prop]);
-                return attrs;
+                return D.Utils.toJSON(this);
             },
             fetch: function() {},
             save: function(options) {
@@ -124,17 +138,18 @@
                 return method(this.url, this.toJSON(), options);
             }
         };
-        Object.defineProperty(modelProto, "url", {});
-        var collectionProto = {};
-        model.extend = function(objOrFunc) {
-            _.isFunction(objOrFunc);
-            var child = function() {};
-            child.prototype = modelProto;
-            child.Collection = function() {};
-            child.Collection.prototype = collectionProto;
+        model.extend = function(protoObj) {
+            var child = function(props) {
+                props && this.set(props);
+            };
+            $.extend(child, D.CRUD);
+            var childProto = Object.create(modelProto);
+            child.prototype = $.extend(childProto, protoObj);
+            child.prototype.constructor = child;
+            child.Collection = D.Collection.extend();
             return child;
         };
         return model;
     }();
-    window.Descanso = window.DS = Descanso;
+    window.Descanso = D;
 }(window, jQuery);

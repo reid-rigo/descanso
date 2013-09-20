@@ -1,4 +1,6 @@
-Descanso.get = function(path, query, options) {
+D.ajax = $.ajax;
+
+D.get = function(path, query, options) {
 	if (arguments.length === 2) options = query;
 	if ($.isFunction(options)) options = { success: options };
 	options = $.extend({
@@ -7,10 +9,10 @@ Descanso.get = function(path, query, options) {
 		data: query,
 		accepts: 'application/json'
 	}, options);
-	return $.ajax(options);
+	return D.ajax(options);
 };
 
-Descanso.post = function(path, data, options) {
+D.post = function(path, data, options) {
 	if ($.isFunction(options)) options = { success: options };
 	options = $.extend({
 		url: path,
@@ -19,10 +21,10 @@ Descanso.post = function(path, data, options) {
 		contentType: 'application/json',
 		accepts: 'application/json'
 	}, options);
-	return $.ajax(options);
+	return D.ajax(options);
 };
 
-Descanso.put = function(path, data, options) {
+D.put = function(path, data, options) {
 	if ($.isFunction(options)) options = { success: options };
 	options = $.extend({
 		url: path,
@@ -31,10 +33,10 @@ Descanso.put = function(path, data, options) {
 		contentType: 'application/json',
 		accepts: 'application/json'
 	}, options);
-	return $.ajax(options);
+	return D.ajax(options);
 };
 
-Descanso.del = function(path, options) {
+D.del = function(path, options) {
 	if ($.isFunction(options)) options = { success: options };
 	options = $.extend({
 		url: path,
@@ -42,5 +44,5 @@ Descanso.del = function(path, options) {
 		data: query,
 		accepts: 'application/json'
 	}, options);
-	return $.ajax(options);
+	return D.ajax(options);
 };

@@ -1,6 +1,6 @@
-Descanso.Mixins = {};
+D.Mixins = {};
 
-Descanso.Mixins.PubSub = {
+D.Mixins.PubSub = {
     
     on: function (event, callback) {
         this._subscriptions[event] = this._subscriptions[event] || [];
@@ -17,4 +17,4 @@ Descanso.Mixins.PubSub = {
 };
 
 
-Descanso.mixin = Descanso.extend = $.extend;
+D.mixin = D.Utils.extend;

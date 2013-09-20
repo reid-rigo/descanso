@@ -1,0 +1,1 @@
+REST object mapper for the browser

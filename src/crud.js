@@ -1,7 +1,7 @@
-Descanso.CRUD = {
+D.CRUD = {
 
-	create: function (attrs, options) {
-		var m = new this(attrs);
+	create: function (props, options) {
+		var m = new this(props);
 		return m.save(options);
 	},
 
@@ -10,8 +10,8 @@ Descanso.CRUD = {
 		return m.fetch(options);
 	},
 
-	update: function (attrs, callback) {
-		var m = new this(attrs);
+	update: function (props, callback) {
+		var m = new this(props);
 		return m.save(options);
 	},
 

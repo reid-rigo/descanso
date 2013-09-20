@@ -1,36 +1,27 @@
-Descanso.Model = (function () {
+D.Model = (function () {
 
 	var model = {};
+
 	var modelProto = {
-		get: function (attr) {
-			return this[attr];
+		get: function (prop) {
+			return this[prop];
 		},
-		set: function (attr, value) {
-			this[attr] = value;
-			this.trigger('change', 'change:' + attr);
-		},
-		getter: function (attr) {
-			Object.defineProperty(this, attr, {
-
-			});
-		},
-		setter: function (attr, value) {
-			Object.defineProperty(this, attr, {
-
-			});
-		},
-		isNew: function () {
-			return this.id !== null;
-		},
-		toJSON: function () {
-			var attrs = {};
+		set: function (prop, value) {
 			var self = this;
-			for (var prop in self) {
- 				if (self.hasOwnProperty(prop) && !$.isFunction(prop)) {
-			        attrs[prop] = self[prop];
+			if (typeof prop === 'string') {
+				this[prop] = value;
+				// this.trigger('change', 'change:' + prop);
+			} else if (prop !== null && typeof prop === 'object') {
+				for (var p in prop) {
+					this[p] = prop[p];
 				}
 			}
-			return attrs;
+		},
+		isNew: function () {
+			return this.id === null || this.id === undefined;
+		},
+		toJSON: function () {
+			return D.Utils.toJSON(this);
 		},
 		fetch: function () {
 
@@ -45,31 +36,18 @@ Descanso.Model = (function () {
 			return method(this.url, this.toJSON(), options);
 		}
 	};
-	Object.defineProperty(modelProto, 'url', {
 
-	});
-	var modelInit = function (attrs) {
-
-	};
-	var collectionProto = {
-
-	};
-	var collectionInit = function (items) {
-
-	};
-	model.extend = function (objOrFunc) {
-		if (_.isFunction(objOrFunc)) {
-
-		} else {
-
-		}
-		var child = function () {};
-		child.prototype = modelProto;
-		child.Collection = function () {};
-		child.Collection.prototype = collectionProto;
+	model.extend = function (protoObj) {
+		var child = function (props) {
+			if(props) this.set(props);
+		};
+		$.extend(child, D.CRUD);
+		var childProto = Object.create(modelProto);
+		child.prototype = $.extend(childProto, protoObj);
+		child.prototype.constructor = child;
+		child.Collection = D.Collection.extend();
 		return child;
 	};
+
 	return model;
 })();
-
-window.Descanso = window.DS = Descanso;

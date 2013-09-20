@@ -14,6 +14,7 @@ module.exports = function(grunt) {
                     'src/ajax.js',
                     'src/crud.js',
                     'src/mixins.js',
+                    'src/collection.js',
                     'src/model.js',
                     'src/after.js'],
               dest: 'descanso.js',
