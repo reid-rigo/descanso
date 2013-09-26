@@ -2,7 +2,7 @@ D.Model = (function () {
 
 	var Model = function (props) {
 		if(props) this.set(props);		
-	}
+	};
 
 	Model.prototype = {
 		get: function (prop) {
@@ -28,7 +28,7 @@ D.Model = (function () {
 			var success = options.success;
 			options.success = function (data) {
 				self.set(data);
-			 	if (success) success.apply(undefined, arguments);
+				if (success) success.apply(undefined, arguments);
 			};
 			return D.get(this.url + '/' + this.id, options);
 		},
@@ -42,7 +42,7 @@ D.Model = (function () {
 		}
 	};
 
-	$.extend(Model, D.CRUD)
+	$.extend(Model, D.CRUD);
 
 	var normalizeUrl = function (url) {
 		if (url[url.length-1] === '/') {
@@ -59,7 +59,7 @@ D.Model = (function () {
 
 	Model.extend = function (proto) {
 		var Child = function () {
-			Model.apply(this, arguments)
+			Model.apply(this, arguments);
 		};
 		$.extend(Child, D.CRUD);
 		Child.prototype = $.extend({}, Model.prototype, processProperties(proto));

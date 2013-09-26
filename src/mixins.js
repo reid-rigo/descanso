@@ -8,7 +8,7 @@ D.Mixins.PubSub = {
     },
 
     trigger: function (event) {
-    	var self = this;
+        var self = this;
         (this._subscriptions[event] || []).forEach(function (fn) {
             fn(self);
         });

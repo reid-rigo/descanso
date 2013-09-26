@@ -3,7 +3,7 @@ D.ajax = function (options) {
 		accepts: 'application/json'
 	}, options);
 	return $.ajax(options);
-}
+};
 
 D.get = function(path, query, options) {
 	if (arguments.length === 2) {
