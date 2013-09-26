@@ -131,7 +131,7 @@
                 return this[prop];
             },
             set: function(prop, value) {
-                if ("string" == typeof prop) this[prop] = value; else if (null !== prop && "object" == typeof prop) for (var p in prop) this[p] = prop[p];
+                "string" == typeof prop ? this[prop] = value : null !== prop && "object" == typeof prop && $.extend(!0, this, prop);
             },
             isNew: function() {
                 return null === this.id || this.id === undefined;
@@ -139,25 +139,52 @@
             toJSON: function() {
                 return D.Utils.toJSON(this);
             },
-            fetch: function() {},
-            save: function(options) {
-                var method = this.isNew() ? Descanso.post : Descanso.put, self = this;
+            fetch: function(options) {
                 $.isFunction(options) && (options = {
                     success: options
                 });
-                options.success = function() {
-                    options.success.call(self);
+                var self = this;
+                options = options || {};
+                var success = options.success;
+                options.success = function(data) {
+                    self.set(data);
+                    success && success(arguments);
                 };
-                return method(this.url, this.toJSON(), options);
+                return D.get(this.url + "/" + this.id, options);
+            },
+            save: function(options) {
+                if (this.isNew()) return this.update(options);
+                $.isFunction(options) && (options = {
+                    success: options
+                });
+                options.success = options.success.bind(this, this);
+                return D.post(this.url, this.toJSON(), options);
+            },
+            update: function(options) {
+                $.isFunction(options) && (options = {
+                    success: options
+                });
+                var self = this;
+                options.success = function(data) {
+                    self.set(data);
+                    options.success.call(this, this);
+                };
+                return D.put(this.url + "/" + this.id, this.toJSON(), options);
             }
         };
         $.extend(Model, D.CRUD);
+        var normalizeUrl = function(url) {
+            return "/" === url[url.length - 1] ? url.slice(0, -1) : url;
+        }, processProperties = function(props) {
+            props.url && (props.url = normalizeUrl(props.url));
+            return props;
+        };
         Model.extend = function(proto) {
             var Child = function() {
                 Model.apply(this, arguments);
             };
             $.extend(Child, D.CRUD);
-            Child.prototype = $.extend(Model.prototype, proto);
+            Child.prototype = $.extend({}, Model.prototype, processProperties(proto));
             Child.prototype.constructor = Child;
             Child.Collection = D.Collection.forModel(Child);
             return Child;

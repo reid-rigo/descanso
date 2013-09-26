@@ -9,13 +9,10 @@ D.Model = (function () {
 			return this[prop];
 		},
 		set: function (prop, value) {
-			var self = this;
 			if (typeof prop === 'string') {
 				this[prop] = value;
 			} else if (prop !== null && typeof prop === 'object') {
-				for (var p in prop) {
-					this[p] = prop[p];
-				}
+				$.extend(true, this, prop);
 			}
 		},
 		isNew: function () {
@@ -25,27 +22,54 @@ D.Model = (function () {
 			return D.Utils.toJSON(this);
 		},
 		fetch: function (options) {
-
+			if ($.isFunction(options)) options = { success: options };
+			var self = this;
+			options = options || {};
+			var success = options.success;
+			options.success = function (data) {
+				self.set(data);
+			 	if (success) success(arguments);
+			};
+			return D.get(this.url + '/' + this.id, options);
 		},
 		save: function (options) {
-			var method = this.isNew() ? Descanso.post : Descanso.put;
-			var self = this;
+			if (this.isNew()) return this.update(options);
 			if ($.isFunction(options)) options = { success: options };
+			options.success = options.success.bind(this, this);
+			return D.post(this.url, this.toJSON(), options);
+		},
+		update: function (options) {
+			if ($.isFunction(options)) options = { success: options };
+			var self = this;
 			options.success = function (data) {
-				options.success.call(self);
+				self.set(data);
+				options.success.call(this, this);
 			};
-			return method(this.url, this.toJSON(), options);
+			return D.put(this.url + '/' + this.id, this.toJSON(), options);
 		}
 	};
 
 	$.extend(Model, D.CRUD)
+
+	var normalizeUrl = function (url) {
+		if (url[url.length-1] === '/') {
+			return url.slice(0, -1);
+		} else {
+			return url;
+		}
+	};
+
+	var processProperties = function (props) {
+		if (props.url) props.url = normalizeUrl(props.url);
+		return props;
+	};
 
 	Model.extend = function (proto) {
 		var Child = function () {
 			Model.apply(this, arguments)
 		};
 		$.extend(Child, D.CRUD);
-		Child.prototype = $.extend(Model.prototype, proto);
+		Child.prototype = $.extend({}, Model.prototype, processProperties(proto));
 		Child.prototype.constructor = Child;
 		Child.Collection = D.Collection.forModel(Child);
 		return Child;

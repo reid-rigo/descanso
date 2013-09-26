@@ -31,6 +31,103 @@ describe('Descanso.Model', function () {
 		assert.isFunction(m.get);
 	});
 
+	it('should be possible to subclass a model', function () {
+
+	});
+
+	it('should normalize input url', function () {
+		var MyModel = Descanso.Model.extend({
+			url: '/mymodels/'
+		});
+		assert.equal(MyModel.prototype.url, '/mymodels');
+	});
+
+	var server;
+
+	before(function () {
+        server = sinon.fakeServer.create();
+    });
+
+    after(function () {
+       	server.restore();
+    });
+
+    var Comment = Descanso.Model.extend({
+    	url: '/comments'
+    });
+
+	describe('#fetch', function () {
+
+		var data = { id: 1, comment: 'hey there' };
+
+		before(function () {
+			server.respondWith('GET', '/comments/1',
+							   [200, { 'Content-Type': 'application/json' }, JSON.stringify(data)]);
+		});
+
+		it('should return promise', function () {
+			var c = new Comment({ id: 1 });
+			var spy = sinon.spy();
+			var req = c.fetch();
+			assert.isDefined(req.done);
+			req.then(spy);
+			server.respond();
+			sinon.assert.calledOnce(spy);
+		});
+
+		it('should accept success function', function () {
+			var c = new Comment({ id: 1 });
+			var spy = sinon.spy();
+			var req = c.fetch(spy);
+			server.respond();
+			sinon.assert.calledOnce(spy);
+		});
+
+		it('should accept options object', function () {
+			var c = new Comment({ id: 1 });
+			var spy = sinon.spy();
+			var req = c.fetch({
+				success: spy,
+				complete: spy
+			});
+			server.respond();
+			sinon.assert.calledTwice(spy);
+		});
+
+		it('should update properties based on server data', function () {
+
+		});
+
+	});
+
+	describe('#update', function () {
+		it('should return promise', function () {
+
+		});
+
+		it('should accept success function', function () {
+
+		});
+
+		it('should accept options object', function () {
+
+		});
+	});	
+
+	describe('#save', function () {
+		it('should return promise', function () {
+
+		});
+
+		it('should accept success function', function () {
+
+		});
+
+		it('should accept options object', function () {
+
+		});
+	});
+
 	describe('#isNew', function () {
 
 		it('should return true iff model has id property', function () {
@@ -71,6 +168,46 @@ describe('Descanso.Model', function () {
 				size: function () { return this.length; }
 			};
 			assert.isUndefined(m.toJSON().utils.size, 'nested function not in JSON');
+		});
+
+	});
+
+	describe('#get', function () {
+
+		var m = new Model();
+
+		it('should return the given property', function () {
+			assert.isUndefined(m.get(null));
+			assert.isUndefined(m.get('doesntExist'));
+			m.test = 'test';
+			assert.equal(m.get('test'), 'test');
+			m.obj = { test: 'test' };
+			assert.deepEqual(m.get('obj'), { test: 'test' });
+		});
+
+	});
+
+	describe('#set', function () {
+
+		var m = new Model();
+
+		it('should work on key value pair', function () {
+			m.set('test', 'test');
+			assert.equal(m.test, 'test');
+			m.set('test', null);
+			assert.isNull(m.test);
+		});
+
+		it('should work on object', function () {
+			m.set('test', { a: 1, b: 2 });
+			assert.deepEqual(m.test, { a: 1, b: 2 });
+		});
+
+		it('should work on deep object', function () {
+			m.set('test', { a: { b: { c: 'd' } } });
+			assert.deepEqual(m.test, { a: { b: { c: 'd' } } });
+			m.set('test', { a: { b: { c: 'e' } } });
+			assert.equal(m.test.a.b.c, 'e');
 		});
 
 	});

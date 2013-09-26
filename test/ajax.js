@@ -12,7 +12,7 @@ describe('Descanso', function () {
 
 	describe('Descanso.get', function () {
 
-		var comment = { id: 12, comment: 'hey there' };
+		var comment = { id: 1, comment: 'hey there' };
 
 		before(function () {
 			server.respondWith('GET', '/comments/1',
