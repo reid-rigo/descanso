@@ -148,28 +148,15 @@
                 var success = options.success;
                 options.success = function(data) {
                     self.set(data);
-                    success && success(arguments);
+                    success && success.apply(undefined, arguments);
                 };
                 return D.get(this.url + "/" + this.id, options);
             },
             save: function(options) {
-                if (this.isNew()) return this.update(options);
-                $.isFunction(options) && (options = {
-                    success: options
-                });
-                options.success = options.success.bind(this, this);
-                return D.post(this.url, this.toJSON(), options);
+                return this.isNew() ? D.post(this.url, this.toJSON(), options) : this.update(options);
             },
             update: function(options) {
-                $.isFunction(options) && (options = {
-                    success: options
-                });
-                var self = this;
-                options.success = function(data) {
-                    self.set(data);
-                    options.success.call(this, this);
-                };
-                return D.put(this.url + "/" + this.id, this.toJSON(), options);
+                return this.isNew() ? this.save(options) : D.put(this.url + "/" + this.id, this.toJSON(), options);
             }
         };
         $.extend(Model, D.CRUD);

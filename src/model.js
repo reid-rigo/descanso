@@ -28,23 +28,16 @@ D.Model = (function () {
 			var success = options.success;
 			options.success = function (data) {
 				self.set(data);
-			 	if (success) success(arguments);
+			 	if (success) success.apply(undefined, arguments);
 			};
 			return D.get(this.url + '/' + this.id, options);
 		},
 		save: function (options) {
-			if (this.isNew()) return this.update(options);
-			if ($.isFunction(options)) options = { success: options };
-			options.success = options.success.bind(this, this);
+			if (!this.isNew()) return this.update(options);
 			return D.post(this.url, this.toJSON(), options);
 		},
 		update: function (options) {
-			if ($.isFunction(options)) options = { success: options };
-			var self = this;
-			options.success = function (data) {
-				self.set(data);
-				options.success.call(this, this);
-			};
+			if (this.isNew()) return this.save(options);
 			return D.put(this.url + '/' + this.id, this.toJSON(), options);
 		}
 	};

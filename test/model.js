@@ -69,7 +69,7 @@ describe('Descanso.Model', function () {
 			var c = new Comment({ id: 1 });
 			var spy = sinon.spy();
 			var req = c.fetch();
-			assert.isDefined(req.done);
+			assert.isFunction(req.done);
 			req.then(spy);
 			server.respond();
 			sinon.assert.calledOnce(spy);
@@ -95,36 +95,87 @@ describe('Descanso.Model', function () {
 		});
 
 		it('should update properties based on server data', function () {
-
+			var c = new Comment({ id: 1 });
+			var req = c.fetch();
+			req.then(function () {
+				assert.equal(c.comment, 'hey there');
+			});
+			server.respond();
 		});
 
 	});
 
 	describe('#update', function () {
-		it('should return promise', function () {
 
+		before(function () {
+			server.respondWith('PUT', '/comments/1',
+							   [200, { 'Content-Type': 'application/json' }, JSON.stringify({})]);
+		});
+
+		it('should return promise', function () {
+			var c = new Comment({ id: 1 });
+			var spy = sinon.spy();
+			var req = c.update();
+			assert.isFunction(req.done);
+			req.then(spy);
+			server.respond();
+			sinon.assert.calledOnce(spy);
 		});
 
 		it('should accept success function', function () {
-
+			var c = new Comment({ id: 1 });
+			var spy = sinon.spy();
+			var req = c.update(spy);
+			server.respond();
+			sinon.assert.calledOnce(spy);
 		});
 
 		it('should accept options object', function () {
-
+			var c = new Comment({ id: 1 });
+			var spy = sinon.spy();
+			var req = c.update({
+				success: spy,
+				complete: spy
+			});
+			server.respond();
+			sinon.assert.calledTwice(spy);
 		});
 	});	
 
 	describe('#save', function () {
-		it('should return promise', function () {
+		
+		before(function () {
+			server.respondWith('POST', '/comments',
+							   [200, { 'Content-Type': 'application/json' }, JSON.stringify({ url: '/comments/1' })]);
+		});
 
+		it('should return promise', function () {
+			var c = new Comment({ comment: 'hey there' });
+			var spy = sinon.spy();
+			var req = c.save();
+			assert.isFunction(req.done);
+			req.then(spy);
+			server.respond();
+			sinon.assert.calledOnce(spy);
 		});
 
 		it('should accept success function', function () {
-
+			var c = new Comment({ comment: 'hey there' });
+			var spy = sinon.spy();
+			var req = c.save(spy);
+			server.respond();
+			sinon.assert.calledOnce(spy);
 		});
 
 		it('should accept options object', function () {
-
+			var c = new Comment({ comment: 'hey there' });
+			var spy = sinon.spy();
+			var req = c.save({
+				success: spy,
+				complete: spy
+			});
+			server.respond();
+			sinon.assert.calledTwice(spy);
 		});
 	});
 

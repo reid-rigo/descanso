@@ -22,7 +22,7 @@ describe('Descanso', function () {
 		it('should return promise', function () {
 			var spy = sinon.spy();
 			var req = Descanso.get('/comments/1');
-			assert.isDefined(req.done);
+			assert.isFunction(req.done);
 			req.then(spy);
 			server.respond();
 			sinon.assert.calledOnce(spy);
@@ -73,7 +73,7 @@ describe('Descanso', function () {
 		it('should return promise', function () {
 			var spy = sinon.spy();
 			var req = Descanso.post('/comments', comment);
-			assert.isDefined(req.done);
+			assert.isFunction(req.done);
 			req.then(spy);
 			server.respond();
 			sinon.assert.calledOnce(spy);
@@ -103,7 +103,7 @@ describe('Descanso', function () {
 
 	describe('Descanso.put', function () {
 
-		var response = { id: 1, comment: 'hey there' };
+		var response = '';
 		var updates = { comment: 'hey there' };
 
 		before(function () {
@@ -114,7 +114,7 @@ describe('Descanso', function () {
 		it('should return promise', function () {
 			var spy = sinon.spy();
 			var req = Descanso.put('/comments/1', updates);
-			assert.isDefined(req.done);
+			assert.isFunction(req.done);
 			req.then(spy);
 			server.respond();
 			sinon.assert.calledOnce(spy);
@@ -154,7 +154,7 @@ describe('Descanso', function () {
 		it('should return promise', function () {
 			var spy = sinon.spy();
 			var req = Descanso.del('/comments/1');
-			assert.isDefined(req.done);
+			assert.isFunction(req.done);
 			req.then(spy);
 			server.respond();
 			sinon.assert.calledOnce(spy);
