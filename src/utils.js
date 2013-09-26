@@ -1,13 +1,5 @@
 D.Utils = {
 
-	extend: $.extend,
-
-	grep: $.grep,
-
-	each: $.each,
-
-	isFunction: $.isFunction,
-
 	toJSON: function (obj) {
 		var retVal = {};
 		for (var prop in obj) {

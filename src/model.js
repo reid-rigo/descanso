@@ -10,7 +10,6 @@ D.Model = (function () {
 			var self = this;
 			if (typeof prop === 'string') {
 				this[prop] = value;
-				// this.trigger('change', 'change:' + prop);
 			} else if (prop !== null && typeof prop === 'object') {
 				for (var p in prop) {
 					this[p] = prop[p];
@@ -23,7 +22,7 @@ D.Model = (function () {
 		toJSON: function () {
 			return D.Utils.toJSON(this);
 		},
-		fetch: function () {
+		fetch: function (options) {
 
 		},
 		save: function (options) {

@@ -2,27 +2,30 @@
     "use strict";
     var D = {};
     D.Utils = {
-        extend: $.extend,
-        grep: $.grep,
-        each: $.each,
-        isFunction: $.isFunction,
         toJSON: function(obj) {
             var retVal = {};
             for (var prop in obj) obj.hasOwnProperty(prop) && !$.isFunction(obj[prop]) && null !== obj[prop] && (retVal[prop] = $.isFunction(obj[prop].toJSON) ? obj[prop].toJSON() : "object" == typeof obj[prop] ? D.Utils.toJSON(obj[prop]) : obj[prop]);
             return retVal;
         }
     };
-    D.ajax = $.ajax;
+    D.ajax = function(options) {
+        options = $.extend({
+            accepts: "application/json"
+        }, options);
+        return $.ajax(options);
+    };
     D.get = function(path, query, options) {
-        2 === arguments.length && (options = query);
+        if (2 === arguments.length) {
+            options = query;
+            query = null;
+        }
         $.isFunction(options) && (options = {
             success: options
         });
         options = $.extend({
             url: path,
             type: "GET",
-            data: query,
-            accepts: "application/json"
+            data: query
         }, options);
         return D.ajax(options);
     };
@@ -34,8 +37,7 @@
             url: path,
             type: "POST",
             data: data,
-            contentType: "application/json",
-            accepts: "application/json"
+            contentType: "application/json"
         }, options);
         return D.ajax(options);
     };
@@ -47,8 +49,7 @@
             url: path,
             type: "PUT",
             data: data,
-            contentType: "application/json",
-            accepts: "application/json"
+            contentType: "application/json"
         }, options);
         return D.ajax(options);
     };
@@ -58,9 +59,7 @@
         });
         options = $.extend({
             url: path,
-            type: "DELETE",
-            data: query,
-            accepts: "application/json"
+            type: "DELETE"
         }, options);
         return D.ajax(options);
     };
