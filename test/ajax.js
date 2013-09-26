@@ -1,5 +1,3 @@
-var assert = chai.assert;
-
 describe('Descanso', function () {
 
 	var server;

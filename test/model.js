@@ -1,5 +1,3 @@
-var assert = chai.assert;
-
 describe('Descanso.Model', function () {
 
 	var Model = Descanso.Model.extend({
@@ -26,6 +24,11 @@ describe('Descanso.Model', function () {
 
 	it('should initialize with any user-given properties', function () {
 		assert.equal(m.greeting, 'hi');
+	});
+
+	it('should be usable without subclassing', function () {
+		var m = new Descanso.Model();
+		assert.isFunction(m.get);
 	});
 
 	describe('#isNew', function () {

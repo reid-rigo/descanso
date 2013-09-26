@@ -1,8 +1,10 @@
 D.Model = (function () {
 
-	var model = {};
+	var Model = function (props) {
+		if(props) this.set(props);		
+	}
 
-	var modelProto = {
+	Model.prototype = {
 		get: function (prop) {
 			return this[prop];
 		},
@@ -36,17 +38,18 @@ D.Model = (function () {
 		}
 	};
 
-	model.extend = function (protoObj) {
-		var child = function (props) {
-			if(props) this.set(props);
+	$.extend(Model, D.CRUD)
+
+	Model.extend = function (proto) {
+		var Child = function () {
+			Model.apply(this, arguments)
 		};
-		$.extend(child, D.CRUD);
-		var childProto = Object.create(modelProto);
-		child.prototype = $.extend(childProto, protoObj);
-		child.prototype.constructor = child;
-		child.Collection = D.Collection.extend();
-		return child;
+		$.extend(Child, D.CRUD);
+		Child.prototype = $.extend(Model.prototype, proto);
+		Child.prototype.constructor = Child;
+		Child.Collection = D.Collection.forModel(Child);
+		return Child;
 	};
 
-	return model;
+	return Model;
 })();

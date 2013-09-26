@@ -100,19 +100,33 @@
     };
     D.mixin = D.Utils.extend;
     D.Collection = function() {
-        var collection = {}, collectionProto = Object.create(Array.prototype, {});
-        collection.extend = function(protoObj) {
-            var child = function(items) {
-                this.concat(items);
-            }, childProto = Object.create(collectionProto);
-            child.prototype = $.extend(childProto, protoObj);
-            child.prototype.constructor = child;
-            return child;
+        var Collection = function(Model, items) {
+            $.isArray(items) || (items = Array.prototype.slice.call(arguments, 1));
+            items = $.map(items, function(i) {
+                return i.constructor === Model ? i : new Model(i);
+            });
         };
-        return collection;
+        Collection.prototype = Object.create(Array.prototype, {});
+        Collection.forModel = function() {
+            var args = arguments, C = Collection.bind(null, args);
+            C.extend = Collection.extend.bind(null, args);
+            return C;
+        };
+        Collection.extend = function(Model, proto) {
+            var args = arguments, Child = function() {
+                Collection.apply(this, args);
+            };
+            Child.prototype = $.extend(Collection.prototype, proto);
+            Child.prototype.constructor = Child;
+            return Child;
+        };
+        return Collection;
     }();
     D.Model = function() {
-        var model = {}, modelProto = {
+        var Model = function(props) {
+            props && this.set(props);
+        };
+        Model.prototype = {
             get: function(prop) {
                 return this[prop];
             },
@@ -137,18 +151,18 @@
                 return method(this.url, this.toJSON(), options);
             }
         };
-        model.extend = function(protoObj) {
-            var child = function(props) {
-                props && this.set(props);
+        $.extend(Model, D.CRUD);
+        Model.extend = function(proto) {
+            var Child = function() {
+                Model.apply(this, arguments);
             };
-            $.extend(child, D.CRUD);
-            var childProto = Object.create(modelProto);
-            child.prototype = $.extend(childProto, protoObj);
-            child.prototype.constructor = child;
-            child.Collection = D.Collection.extend();
-            return child;
+            $.extend(Child, D.CRUD);
+            Child.prototype = $.extend(Model.prototype, proto);
+            Child.prototype.constructor = Child;
+            Child.Collection = D.Collection.forModel(Child);
+            return Child;
         };
-        return model;
+        return Model;
     }();
     window.Descanso = D;
 }(window, jQuery);

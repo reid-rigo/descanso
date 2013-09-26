@@ -48,6 +48,7 @@ module.exports = function(grunt) {
                             'test/chai.js',
                             'test/sinon-chai.js',
                             'test/sinon.js',
+                            'test/pre.js',
                             'test/**/*.js'],
                     autoWatch: true
                 }

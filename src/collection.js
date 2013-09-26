@@ -1,21 +1,32 @@
 D.Collection = (function () {
 
-	var collection = {};
+	var Collection = function (Model, items) {
+		if (!$.isArray(items)) items = Array.prototype.slice.call(arguments, 1);
+		items = $.map(items, function (i) {
+			return (i.constructor === Model) ? i : new Model(i);
+		});
+	};
 
-	var collectionProto = Object.create(Array.prototype, {
+	Collection.prototype = Object.create(Array.prototype, {
 
 	});
 
-	collection.extend = function (protoObj) {
-		var child = function (items) {
-			this.concat(items);
-		};
-		// $.extend(child, D.CRUD);
-		var childProto = Object.create(collectionProto);
-		child.prototype = $.extend(childProto, protoObj);
-		child.prototype.constructor = child;
-		return child;
+	Collection.forModel = function (Model) {
+		var args = arguments;
+		var C = Collection.bind(null, args);
+		C.extend = Collection.extend.bind(null, args);
+		return C;
 	};
 
-	return collection;
+	Collection.extend = function (Model, proto) {
+		var args = arguments;
+		var Child = function () {
+			Collection.apply(this, args);
+		};
+		Child.prototype = $.extend(Collection.prototype, proto);
+		Child.prototype.constructor = Child;
+		return Child;
+	};
+
+	return Collection;
 })();
